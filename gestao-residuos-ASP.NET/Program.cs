@@ -1,6 +1,8 @@
 using gestao_residuos_ASP.NET.Data;
+using gestao_residuos_ASP.NET.Interface;
+using gestao_residuos_ASP.NET.Services;
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +12,10 @@ builder.Configuration.AddJsonFile("appsettings.Development.json", optional: true
 
 // Configuração do contexto do Entity Framework Core com a string de conexão do appsettings.Development.json
 builder.Services.AddDbContext<GestaoResiduosContext>(options =>
-    options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseOracle(builder.Configuration.GetConnectionString("GestaoConnection")));
+
+// Registrar o serviço ContatoService
+builder.Services.AddScoped<IContatoService, ContatoService>();
 
 // Outros serviços
 builder.Services.AddControllers();
@@ -24,6 +29,19 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+// Aplicar migrações para criar o banco de dados e tabelas se necessário
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<GestaoResiduosContext>();
+    context.Database.Migrate();
+}
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();
