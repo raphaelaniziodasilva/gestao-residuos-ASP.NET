@@ -1,7 +1,7 @@
 using gestao_residuos_ASP.NET.Data;
 using gestao_residuos_ASP.NET.Interface;
+using gestao_residuos_ASP.NET.Mapping;
 using gestao_residuos_ASP.NET.Services;
-
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,8 +14,12 @@ builder.Configuration.AddJsonFile("appsettings.Development.json", optional: true
 builder.Services.AddDbContext<GestaoResiduosContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("GestaoConnection")));
 
+// Adiciona o serviço AutoMapper com o perfil de mapeamento
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 // Registrar o serviço ContatoService
 builder.Services.AddScoped<IContatoService, ContatoService>();
+builder.Services.AddScoped<ILixoService, LixoService>();
 
 // Outros serviços
 builder.Services.AddControllers();

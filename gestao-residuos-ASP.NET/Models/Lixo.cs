@@ -12,7 +12,7 @@ namespace gestao_residuos_ASP.NET.Models
         public long Id { get; set; }
 
         [Required(ErrorMessage = "A capacidade é obrigatória")]
-        public double? Capacidade { get; set; }
+        public double Capacidade { get; set; }
 
         [MaxLength(100, ErrorMessage = "O tamanho da localização não pode exceder 100 caracteres")]
         public string Localizacao { get; set; }
