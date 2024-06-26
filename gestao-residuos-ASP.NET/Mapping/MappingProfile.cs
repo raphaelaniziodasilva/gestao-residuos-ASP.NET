@@ -8,8 +8,15 @@ namespace gestao_residuos_ASP.NET.Mapping
     {
         public MappingProfile()
         {
+            CreateMap<ContatoDto, Contato>();
+            CreateMap<Contato, ContatoExibicaoDto>();
+
             CreateMap<LixoDTO, Lixo>();
             CreateMap<Lixo, LixoExibicaoDTO>();
+
+            CreateMap<ColetaAgendadaDTO, ColetaAgendada>();
+            CreateMap<ColetaAgendada, ColetaAgendadaExibicaoDTO>();
+            
         }
     }
 }

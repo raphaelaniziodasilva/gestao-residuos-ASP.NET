@@ -1,4 +1,5 @@
-﻿using gestao_residuos_ASP.NET.Data;
+﻿using AutoMapper;
+using gestao_residuos_ASP.NET.Data;
 using gestao_residuos_ASP.NET.Dto;
 using gestao_residuos_ASP.NET.Interface;
 using gestao_residuos_ASP.NET.Models;
@@ -12,101 +13,130 @@ namespace gestao_residuos_ASP.NET.Services
     public class ContatoService : IContatoService
     {
         private readonly GestaoResiduosContext _context;
+        private readonly IMapper _mapper;
 
-        public ContatoService(GestaoResiduosContext context)
+        public ContatoService(GestaoResiduosContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public ContatoExibicaoDto SalvarContato(ContatoDto contatoDto)
         {
-            var contatoExistente = _context.Contato.SingleOrDefault(c => c.Email == contatoDto.Email);
-
-            if (contatoExistente != null)
+            try
             {
-                throw new InvalidOperationException("Contato já existe!");
+                var contatoExistente = _context.Contato.SingleOrDefault(c => c.Email == contatoDto.Email);
+
+                if (contatoExistente != null)
+                {
+                    throw new InvalidOperationException("Contato já existe!");
+                }
+
+                var novoContato = _mapper.Map<Contato>(contatoDto);
+
+                _context.Contato.Add(novoContato);
+                _context.SaveChanges();
+
+                return _mapper.Map<ContatoExibicaoDto>(novoContato);
             }
-
-            var novoContato = new Contato
+            catch (Exception ex)
             {
-                Nome = contatoDto.Nome,
-                Email = contatoDto.Email,
-                Telefone = contatoDto.Telefone,
-                Rua = contatoDto.Rua,
-                Cidade = contatoDto.Cidade,
-                Estado = contatoDto.Estado,
-                Cep = contatoDto.Cep
-            };
-
-            _context.Contato.Add(novoContato);
-            _context.SaveChanges();
-
-            return new ContatoExibicaoDto(novoContato);
+                throw new ApplicationException($"Erro ao salvar contato: {ex.Message}", ex);
+            }
         }
 
         public List<Contato> ListarContatos()
         {
-            return _context.Contato.ToList();
+            try
+            {
+                return _context.Contato.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Erro ao listar contatos: {ex.Message}", ex);
+            }
         }
 
         public ContatoExibicaoDto BuscarContatoPorId(long id)
         {
-            var contato = _context.Contato.Find(id);
-
-            if (contato == null)
+            try
             {
-                throw new InvalidOperationException("Contato não existe!");
-            }
+                var contato = _context.Contato.Find(id);
 
-            return new ContatoExibicaoDto(contato);
+                if (contato == null)
+                {
+                    throw new InvalidOperationException("Contato não existe!");
+                }
+
+                return _mapper.Map<ContatoExibicaoDto>(contato);
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Erro ao buscar contato por ID: {ex.Message}", ex);
+            }
         }
 
         public ContatoExibicaoDto BuscarContatoPorEmail(string email)
         {
-            var contato = _context.Contato.SingleOrDefault(c => c.Email == email);
-
-            if (contato == null)
+            try
             {
-                throw new InvalidOperationException("Contato não existe!");
-            }
+                var contato = _context.Contato.SingleOrDefault(c => c.Email == email);
 
-            return new ContatoExibicaoDto(contato);
+                if (contato == null)
+                {
+                    throw new InvalidOperationException("Contato não existe!");
+                }
+
+                return _mapper.Map<ContatoExibicaoDto>(contato);
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Erro ao buscar contato por email: {ex.Message}", ex);
+            }
         }
 
-        public Contato Atualizar(long id, ContatoDto contato)
+        public Contato Atualizar(long id, ContatoDto contatoDto)
         {
-            var contatoExistente = _context.Contato.Find(id);
-
-            if (contatoExistente == null)
+            try
             {
-                throw new InvalidOperationException("Contato não encontrado!");
+                var contatoExistente = _context.Contato.Find(id);
+
+                if (contatoExistente == null)
+                {
+                    throw new InvalidOperationException("Contato não encontrado!");
+                }
+
+                _mapper.Map(contatoDto, contatoExistente);
+
+                _context.Contato.Update(contatoExistente);
+                _context.SaveChanges();
+
+                return contatoExistente;
             }
-
-            contatoExistente.Nome = contato.Nome;
-            contatoExistente.Email = contato.Email;
-            contatoExistente.Telefone = contato.Telefone;
-            contatoExistente.Rua = contato.Rua;
-            contatoExistente.Cidade = contato.Cidade;
-            contatoExistente.Estado = contato.Estado;
-            contatoExistente.Cep = contato.Cep;
-
-            _context.Contato.Update(contatoExistente);
-            _context.SaveChanges();
-
-            return contatoExistente;
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Erro ao atualizar contato: {ex.Message}", ex);
+            }
         }
 
         public void Excluir(long id)
         {
-            var contato = _context.Contato.Find(id);
-
-            if (contato == null)
+            try
             {
-                throw new InvalidOperationException("Contato não encontrado!");
-            }
+                var contato = _context.Contato.Find(id);
 
-            _context.Contato.Remove(contato);
-            _context.SaveChanges();
+                if (contato == null)
+                {
+                    throw new InvalidOperationException("Contato não encontrado!");
+                }
+
+                _context.Contato.Remove(contato);
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Erro ao excluir contato: {ex.Message}", ex);
+            }
         }
     }
 }

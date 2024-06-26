@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using gestao_residuos_ASP.NET.Data;
@@ -22,65 +23,114 @@ namespace gestao_residuos_ASP.NET.Services
 
         public LixoExibicaoDTO SalvarLixo(LixoDTO lixoDto)
         {
-            var novoLixo = _mapper.Map<Lixo>(lixoDto);
-            _context.Lixo.Add(novoLixo);
-            _context.SaveChanges();
-            return _mapper.Map<LixoExibicaoDTO>(novoLixo);
+            try
+            {
+                var novoLixo = _mapper.Map<Lixo>(lixoDto);
+                _context.Lixo.Add(novoLixo);
+                _context.SaveChanges();
+                return _mapper.Map<LixoExibicaoDTO>(novoLixo);
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Erro ao salvar lixo: {ex.Message}", ex);
+            }
         }
 
         public List<Lixo> ListarLixos()
         {
-            return _context.Lixo.ToList();
+            try
+            {
+                return _context.Lixo.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Erro ao listar lixos: {ex.Message}", ex);
+            }
         }
 
         public LixoExibicaoDTO BuscarLixoPorId(long id)
         {
-            var lixo = _context.Lixo.Find(id);
-            if (lixo == null)
+            try
             {
-                throw new InvalidOperationException("Lixo não encontrado!");
+                var lixo = _context.Lixo.Find(id);
+                if (lixo == null)
+                {
+                    throw new InvalidOperationException("Lixo não encontrado!");
+                }
+                return _mapper.Map<LixoExibicaoDTO>(lixo);
             }
-            return _mapper.Map<LixoExibicaoDTO>(lixo);
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Erro ao buscar lixo por ID: {ex.Message}", ex);
+            }
         }
 
         public List<LixoExibicaoDTO> BuscarLixoPorTipo(string tipo)
         {
-            return _context.Lixo
-                .Where(l => l.Tipo == tipo)
-                .Select(l => _mapper.Map<LixoExibicaoDTO>(l))
-                .ToList();
+            try
+            {
+                return _context.Lixo
+                    .Where(l => l.Tipo == tipo)
+                    .Select(l => _mapper.Map<LixoExibicaoDTO>(l))
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Erro ao buscar lixo por tipo: {ex.Message}", ex);
+            }
         }
 
         public List<LixoExibicaoDTO> BuscarLixoPorLocalizacao(string localizacao)
         {
-            return _context.Lixo
-                .Where(l => l.Localizacao == localizacao)
-                .Select(l => _mapper.Map<LixoExibicaoDTO>(l))
-                .ToList();
+            try
+            {
+                return _context.Lixo
+                    .Where(l => l.Localizacao == localizacao)
+                    .Select(l => _mapper.Map<LixoExibicaoDTO>(l))
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Erro ao buscar lixo por localização: {ex.Message}", ex);
+            }
         }
 
         public LixoExibicaoDTO Atualizar(long id, LixoDTO lixoDto)
         {
-            var lixoExistente = _context.Lixo.Find(id);
-            if (lixoExistente == null)
+            try
             {
-                throw new InvalidOperationException("Lixo não encontrado!");
+                var lixoExistente = _context.Lixo.Find(id);
+                if (lixoExistente == null)
+                {
+                    throw new InvalidOperationException("Lixo não encontrado!");
+                }
+                _mapper.Map(lixoDto, lixoExistente);
+                _context.Lixo.Update(lixoExistente);
+                _context.SaveChanges();
+                return _mapper.Map<LixoExibicaoDTO>(lixoExistente);
             }
-            _mapper.Map(lixoDto, lixoExistente);
-            _context.Lixo.Update(lixoExistente);
-            _context.SaveChanges();
-            return _mapper.Map<LixoExibicaoDTO>(lixoExistente);
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Erro ao atualizar lixo: {ex.Message}", ex);
+            }
         }
 
         public void Excluir(long id)
         {
-            var lixo = _context.Lixo.Find(id);
-            if (lixo == null)
+            try
             {
-                throw new InvalidOperationException("Lixo não encontrado!");
+                var lixo = _context.Lixo.Find(id);
+                if (lixo == null)
+                {
+                    throw new InvalidOperationException("Lixo não encontrado!");
+                }
+                _context.Lixo.Remove(lixo);
+                _context.SaveChanges();
             }
-            _context.Lixo.Remove(lixo);
-            _context.SaveChanges();
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Erro ao excluir lixo: {ex.Message}", ex);
+            }
         }
     }
 }

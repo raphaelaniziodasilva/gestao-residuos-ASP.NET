@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace gestao_residuos_ASP.NET.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api")]
     public class ContatoController : ControllerBase
     {
         private readonly IContatoService _contatoService;
